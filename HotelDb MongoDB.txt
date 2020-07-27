@@ -1,0 +1,464 @@
+HOTEL DATABASE USING MONGODB
+
+-----------Created database Hotel and collections Employees & Customer in Visual Studio C# MongoDB----------------
+
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace MongoDBExercise
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var client = new MongoClient("mongodb://localhost");
+            //creating database
+            var DB = client.GetDatabase("Hotel");
+
+           //Employee collection table
+            var empcollection = DB.GetCollection<BsonDocument>("Employees");//creating collection
+            var employee = new[]
+             {
+                new BsonDocument {{"_id","1" },{"FirstName","Deva" },{"LastName","Priya" },{"Title","Manager"},{"Notes","Excellent management"}},
+                new BsonDocument {{"_id","2" },{"FirstName","Durgesh" },{"LastName","Kumar" },{"Title","CEO"}},
+                new BsonDocument {{"_id","3" },{"FirstName","Shikanth" },{"LastName","Kumar" },{"Title","Receptionist"}}
+            };   
+            empcollection.InsertMany(employee);
+
+            //Customer collection table
+            var cuscollection = DB.GetCollection<BsonDocument>("Customers");//creating collection
+
+            var customer = new[]
+             {          //Account number = _id
+                new BsonDocument {{"_id","1" },{ "AccountNumber_id","1"},{"FirstName","Devanesh" },{"LastName","Priyan" },{"PhoneNumber","0769584235"},{ "Emergency Number","0214587962"} },
+                new BsonDocument {{"_id","2" }, { "AccountNumber_id", "2" },{ "FirstName","Dharmesh" },{"LastName","Kumar" },{"PhoneNumber","0769584235"},{ "Emergency Number","0214587962"},{ "Notes","Regular customer"} },
+                new BsonDocument {{"_id","3" }, { "AccountNumber_id", "3" },{ "FirstName","Srishanth" },{"LastName","Ram" }, { "Emergency Number", "0214587962" } }
+            };
+            cuscollection.InsertMany(customer);
+            Console.WriteLine("Press enter to continue");
+            Console.ReadLine();
+
+        }
+    }
+}
+--------------------------Using Console to creating collections--------------------
+
+> show dbs
+Employee  0.000GB
+Hotel     0.000GB
+admin     0.000GB
+config    0.000GB
+local     0.000GB
+> use Hotel
+switched to db Hotel
+> show collections
+Customers
+Employees
+
+--------------------RoomStatus------------------------------------------------------
+> db.createCollection('RoomStatus')
+{ "ok" : 1 }
+
+  db.RoomStatus.insertMany([
+...             {_id:'1',RoomStatus:'Available', Notes:'Good condition'},
+...             {_id:'2',RoomStatus:'Reserved'},
+...             {_id:'3',RoomStatus:'Booked'  }
+...     ])
+{ "acknowledged" : true, "insertedIds" : [ "1", "2", "3" ] }
+
+//Viewing document
+> db.RoomStatus.find().pretty()
+{ "_id" : "1", "RoomStatus" : "Available", "Notes" : "Good condition" }
+{ "_id" : "2", "RoomStatus" : "Reserved" }
+{ "_id" : "3", "RoomStatus" : "Booked" }
+
+-------------------RoomType---------------------------------------------------------
+> db.createCollection('RoomType')
+{ "ok" : 1 }
+
+> db.RoomType.insertMany([
+...             {_id:'1',RoomType:'Double', Notes:'Good condition'},
+...             {_id:'2',RoomType:'Single'},
+...             {_id:'3',RoomType:'Hall'  }
+...     ])
+{ "acknowledged" : true, "insertedIds" : [ "1", "2", "3" ] }
+
+
+//viewing document
+> db.RoomType.find().pretty()
+{ "_id" : "1", "RoomType" : "Double", "Notes" : "Good condition" }
+{ "_id" : "2", "RoomType" : "Single" }
+{ "_id" : "3", "RoomType" : "Hall" }
+
+--------------------BedType--------------------------------------------------------
+> db.createCollection('BedType')
+{ "ok" : 1 }
+
+> db.BedType.insertMany([
+...             {_id:'1',BedType:'Double',Notes:'Available for customers'},
+...             {_id:'2',BedType:'Single'},
+...             {_id:'3',BedType:'Twin'  }
+...     ])
+{ "acknowledged" : true, "insertedIds" : [ "1", "2", "3" ] }
+
+//viewing document
+
+> db.BedType.find().pretty()
+{ "_id" : "1", "BedType" : "Double", "Notes" : "Available for customers" }
+{ "_id" : "2", "BedType" : "Single" }
+{ "_id" : "3", "BedType" : "Twin" }
+>   
+
+------------------------Rooms-----------------------------------------------------
+> db.createCollection('Rooms')
+{ "ok" : 1 }
+
+ >  db.Rooms.insertMany([
+...         {
+...          _id:'1',
+...          RoomStatus:{RoomStatus:'Available',Notes:'available'},
+...          RoomType:{RoomType:'Single'},
+...          BedType:{BedType:'Single'},
+...          Rate: 200,
+...          Notes :'Available in status'
+...         },
+...
+...
+...
+...     {
+...          _id:'2',
+...          RoomStatus:{RoomStatus:'Reserved',Notes:'Prebooked by customer'},
+...          RoomType:{RoomType:'Double'},
+...          BedType:{BedType:'Double'},
+...          Rate: 300,
+...          Notes:'No data'
+...         }
+...
+...     ])
+{ "acknowledged" : true, "insertedIds" : [ "1", "2" ] }
+> db.Rooms.insert(
+... {
+... _id:'3',
+... RoomStatus:{RoomStatus:'Occupied',Notes:'available'},
+...  RoomType:{RoomType:'Hall'},
+... BedType:{BedType:'Twin'},
+... Rate:500,
+... Noted:'Occupied for 3 days'
+... })
+WriteResult({ "nInserted" : 1 })
+
+//Viewing document
+> db.Rooms.find().pretty()
+{
+        "_id" : "1",
+        "RoomStatus" : {
+                "RoomStatus" : "Available",
+                "Notes" : "available"
+        },
+        "RoomType" : {
+                "RoomType" : "Single"
+        },
+        "BedType" : {
+                "BedType" : "Single"
+        },
+        "Rate" : 200,
+        "Notes" : "Available in status"
+}
+{
+        "_id" : "2",
+        "RoomStatus" : {
+                "RoomStatus" : "Reserved",
+                "Notes" : "Prebooked by customer"
+        },
+        "RoomType" : {
+                "RoomType" : "Double"
+        },
+        "BedType" : {
+                "BedType" : "Double"
+        },
+        "Rate" : 300,
+        "Notes" : "No data"
+}
+{
+        "_id" : "3",
+        "RoomStatus" : {
+                "RoomStatus" : "Occupied",
+                "Notes" : "available"
+        },
+        "RoomType" : {
+                "RoomType" : "Hall"
+        },
+        "BedType" : {
+                "BedType" : "Twin"
+        },
+        "Rate" : 500,
+        "Noted" : "Occupied for 3 days"
+}
+
+-------------------------------------------Payments--------------------------------
+> db.createCollection('Payments')
+{ "ok" : 1 }
+> db.Payments.insertMany([
+...     {
+...     _id:'1',
+...     Employee_id:{Firstname:'Deva', Lastname:'Priya',Title:'Manager',Notes:'Excellent management'},
+...     AccountNumber:{AccountNumber:1,FirstName:'Devanesh',LastName:'Priyam',PhoneNumber:0765842365,EmergencyNo:021457896},
+...     PaymentDate:'2020-07-10',
+...     FirstDateOccupied:'2020-07-10',
+...     LastDateOccupied:'2020-07-11',
+...     TotalDays:2,
+...     AmountCharged:1000,
+...     TaxRate:0.10,
+...     TaxAmount:100,
+...     PaymentTotal:1000,
+...     Notes:'Done'
+...     },
+...
+...      {
+...     _id:'2',
+...     Employee_id:{Firstname:'Durgesh', Lastname:'Kumar',Title:'CEO'},
+...     AccountNumber:{AccountNumber:2,FirstName:'Dharmesh',LastName:'Kumar',PhoneNumber:0765842365,EmergencyNo:021457896},
+...     PaymentDate:'2020-07-10',
+...     FirstDateOccupied:'2020-07-10',
+...     LastDateOccupied:'2020-07-11',
+...     TotalDays:2,
+...     AmountCharged:2000,
+...     TaxRate:0.10,
+...     TaxAmount:100,
+...     PaymentTotal:2200,
+...     },
+...
+...      {
+...     _id:'3',
+...     Employee_id:{Firstname:'Shrikanth', Lastname:'Kumar',Title:'Receptionist'},
+...     AccountNumber:{AccountNumber:3,FirstName:'Srishanth',LastName:'Ram',PhoneNumber:0765842365,EmergencyNo:021457896},
+...     PaymentDate:'2020-07-10',
+...     FirstDateOccupied:'2020-07-10',
+...     LastDateOccupied:'2020-07-11',
+...     TotalDays:2,
+...     AmountCharged:3000,
+...     TaxRate:0.10,
+...     TaxAmount:100,
+...     PaymentTotal:3300,
+...
+...     }
+...
+...
+...
+...     ])
+{ "acknowledged" : true, "insertedIds" : [ "1", "2", "3" ] }
+
+//viewing document in form of table
+> db.Payments.find().pretty()
+{
+        "_id" : "1",
+        "Employee_id" : {
+                "Firstname" : "Deva",
+                "Lastname" : "Priya",
+                "Title" : "Manager",
+                "Notes" : "Excellent management"
+        },
+        "AccountNumber" : {
+                "AccountNumber" : 1,
+                "FirstName" : "Devanesh",
+                "LastName" : "Priyam",
+                "PhoneNumber" : 765842365,
+                "EmergencyNo" : 21457896
+        },
+        "PaymentDate" : "2020-07-10",
+        "FirstDateOccupied" : "2020-07-10",
+        "LastDateOccupied" : "2020-07-11",
+        "TotalDays" : 2,
+        "AmountCharged" : 1000,
+        "TaxRate" : 0.1,
+        "TaxAmount" : 100,
+        "PaymentTotal" : 1000,
+        "Notes" : "Done"
+}
+{
+        "_id" : "2",
+        "Employee_id" : {
+                "Firstname" : "Durgesh",
+                "Lastname" : "Kumar",
+                "Title" : "CEO"
+        },
+        "AccountNumber" : {
+                "AccountNumber" : 2,
+                "FirstName" : "Dharmesh",
+                "LastName" : "Kumar",
+                "PhoneNumber" : 765842365,
+                "EmergencyNo" : 21457896
+        },
+        "PaymentDate" : "2020-07-10",
+        "FirstDateOccupied" : "2020-07-10",
+        "LastDateOccupied" : "2020-07-11",
+        "TotalDays" : 2,
+        "AmountCharged" : 2000,
+        "TaxRate" : 0.1,
+        "TaxAmount" : 100,
+        "PaymentTotal" : 2200
+}
+{
+        "_id" : "3",
+        "Employee_id" : {
+                "Firstname" : "Shrikanth",
+                "Lastname" : "Kumar",
+                "Title" : "Receptionist"
+        },
+        "AccountNumber" : {
+                "AccountNumber" : 3,
+                "FirstName" : "Srishanth",
+                "LastName" : "Ram",
+                "PhoneNumber" : 765842365,
+                "EmergencyNo" : 21457896
+        },
+        "PaymentDate" : "2020-07-10",
+        "FirstDateOccupied" : "2020-07-10",
+        "LastDateOccupied" : "2020-07-11",
+        "TotalDays" : 2,
+        "AmountCharged" : 3000,
+        "TaxRate" : 0.1,
+        "TaxAmount" : 100,
+        "PaymentTotal" : 3300
+}
+-----------------------------Occupancies-----------------------------
+> db.createCollection('Occupancies')
+{ "ok" : 1 }
+> > db.Occupancies.insertMany([
+... {
+... _id:'1',
+... EmployeeId:{FirstName:'Deva',LastName:'Priya',Title:'Manager'},
+... DateOccupied:2020-07-10,
+... AccountNumber:{AccountNumber:1,FirstName:'Devanesh',LastName:'Priyan',PhoneNumber:765873465,EmergencyNo:015483},
+... RoomNumber:{ RoomNumber:1,RoomType:'single',BedType:'Single',Rate:200,RoomStatus:'Occupied'},
+... RateApplied:700,
+... PhoneCharge:0,
+... Notes:'null'
+... },
+...
+... {
+... _id:'2',
+... EmployeeId:{FirstName:'Deva',LastName:'Kumar',Title:'Manager'},
+... DateOccupied:2020-07-10,
+... AccountNumber:{AccountNumber:2,FirstName:'Dharmesh',LastName:'Kumar',PhoneNumber:765845465,EmergencyNo:015483},
+... RoomNumber:{ RoomNumber:1,RoomType:'Double',BedType:'Double',Rate:300,RoomStatus:'Reserved'},
+... RateApplied:1000,
+... PhoneCharge:0,
+... Notes:'null'
+... },
+... {
+... _id:'3',
+... EmployeeId:{FirstName:'Shrikanth',LastName:'Kumar',Title:'Receptionist'},
+... DateOccupied:2020-07-10,
+... AccountNumber:{AccountNumber:3,FirstName:'Dharmesh',LastName:'Kumar',PhoneNumber:765483465,EmergencyNo:015483},
+... RoomNumber:{ RoomNumber:1,RoomType:'Hall',BedType:'Hall',Rate:300,RoomStatus:'Occupied'},
+... RateApplied:2000,
+... PhoneCharge:0,
+... Notes:'null'
+... }
+...
+... ])
+{ "acknowledged" : true, "insertedIds" : [ "1", "2", "3" ] }
+
+//Viewing document
+> > db.Occupancies.find().pretty()
+{
+        "_id" : "1",
+        "EmployeeId" : {
+                "FirstName" : "Deva",
+                "LastName" : "Priya",
+                "Title" : "Manager"
+        },
+        "DateOccupied" : 2003,
+        "AccountNumber" : {
+                "AccountNumber" : 1,
+                "FirstName" : "Devanesh",
+                "LastName" : "Priyan",
+                "PhoneNumber" : 765873465,
+                "EmergencyNo" : 15483
+        },
+        "RoomNumber" : {
+                "RoomNumber" : 1,
+                "RoomType" : "single",
+                "BedType" : "Single",
+                "Rate" : 200,
+                "RoomStatus" : "Occupied"
+        },
+        "RateApplied" : 700,
+        "PhoneCharge" : 0,
+        "Notes" : "null"
+}
+{
+        "_id" : "2",
+        "EmployeeId" : {
+                "FirstName" : "Deva",
+                "LastName" : "Kumar",
+                "Title" : "Manager"
+        },
+        "DateOccupied" : 2003,
+        "AccountNumber" : {
+                "AccountNumber" : 2,
+                "FirstName" : "Dharmesh",
+                "LastName" : "Kumar",
+                "PhoneNumber" : 765845465,
+                "EmergencyNo" : 15483
+        },
+        "RoomNumber" : {
+                "RoomNumber" : 1,
+                "RoomType" : "Double",
+                "BedType" : "Double",
+                "Rate" : 300,
+                "RoomStatus" : "Reserved"
+        },
+        "RateApplied" : 1000,
+        "PhoneCharge" : 0,
+        "Notes" : "null"
+}
+{
+        "_id" : "3",
+        "EmployeeId" : {
+                "FirstName" : "Shrikanth",
+                "LastName" : "Kumar",
+                "Title" : "Receptionist"
+        },
+        "DateOccupied" : 2003,
+        "AccountNumber" : {
+                "AccountNumber" : 3,
+                "FirstName" : "Dharmesh",
+                "LastName" : "Kumar",
+                "PhoneNumber" : 765483465,
+                "EmergencyNo" : 15483
+        },
+        "RoomNumber" : {
+                "RoomNumber" : 1,
+                "RoomType" : "Hall",
+                "BedType" : "Hall",
+                "Rate" : 300,
+                "RoomStatus" : "Occupied"
+        },
+        "RateApplied" : 2000,
+        "PhoneCharge" : 0,
+        "Notes" : "null"
+}
+> 
+--------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
